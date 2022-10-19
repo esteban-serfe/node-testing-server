@@ -9,6 +9,7 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const { default: nodeTest } = require('node:test');
 
 const packageName = '[node-testing-server]:';
 
@@ -198,8 +199,30 @@ let nodeTestingServer = {
                         } else {
                             // If requested page cannot be found in public/ folder,
                             // then it will be generated from nodeTestingServer.config.pages
-                            res.writeHead(status200, { 'Content-Type': contentType });
-                            res.end(nodeTestingServer.config.pages[fileURL]);
+                            if (typeof(nodeTestingServer.config.pages[fileURL] == 'object') {
+                                if ('contentType' in nodeTestingServer.config.pages[fileURL]) 
+                                {
+                                    contentType = nodeTestingServer.config.pages[fileURL].contentType;
+                                }
+
+                                if ('statusCode' in nodeTestingServer.config.pages[fileURL])
+                                    res.writeHead(
+                                        nodeTestingServer.config.pages[fileURL].statusCode, 
+                                        { 'Content-Type': contentType } 
+                                    );
+                                } else {
+                                    res.writeHead(status200, { 'Content-Type': contentType } );
+                                }
+                                if ('body' in nodeTestingServer.config.pages[fileURL]) {
+                                    res.end(nodeTestingServer.config.pages[fileURL].body);
+                                } else {
+                                    res.end();
+                                }
+
+                            } else {
+                                res.writeHead(status200, { 'Content-Type': contentType } );
+                                res.end(nodeTestingServer.config.pages[fileURL]);
+                            }
                             // Show logs if they are enabled in nodeTestingServer.config.logsEnabled
                             if (nodeTestingServer.config.logsEnabled >= 1) {
                                 // Print outcoming response CODE
